@@ -16,7 +16,7 @@ nfield = nm.DirectorField(
     mesh_dimensions=(40,40,10)) # (Nx, Ny, Nz) # fix dimensions 40 40 10 
 
 # read (u,v,z) director field results of a meshgrid with xy indexing (default)
-data = loadmat('C:/Users/manzoni/Desktop/NEMAKTIS/90twist_alignment_matrices.mat')
+data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/90twist_alignment_matrices.mat')
 # (Ny,Nx,Nz) Note! the y axis come first! (although usually Nx=Ny)
 u_matlab = data['u'] 
 v_matlab = data['v']

@@ -77,4 +77,14 @@ output_fields.save_to_vti("OUTPUTFIELD_MYSINCOS")
 
 # Use Nemaktis viewer to see the output
 viewer = nm.FieldViewer(output_fields)
+#vector_image = viewer.get_image()
+
+#print('a = ',vector_image[0])
+#print('b = ',vector_image[1])
+#print('c = ',vector_image[2])
+
+#print(vector_image)
+
+#viewer.save("./image_test.png")
+
 viewer.plot()
