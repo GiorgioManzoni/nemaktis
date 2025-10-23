@@ -16,7 +16,9 @@ nfield = nm.DirectorField(
     mesh_dimensions=(40,40,10)) # (Nx, Ny, Nz) # fix dimensions 40 40 10 
 
 # read (u,v,z) director field results of a meshgrid with xy indexing (default)
-data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/90twist_alignment_matrices.mat')
+#data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/90twist_alignment_matrices.mat')
+data = loadmat('/project/statekeylab/giorgio/nemaktis/90twist_alignment_matrices.mat')
+
 # (Ny,Nx,Nz) Note! the y axis come first! (although usually Nx=Ny)
 u_matlab = data['u'] 
 v_matlab = data['v']
@@ -42,7 +44,8 @@ nfield.vals = director
 nfield.normalize()
 
 # save the director in vti format (optional)
-nfield.save_to_vti('C:/Users/manzoni/Desktop/NEMAKTIS/POUYA_90twist_dir.vti')
+#nfield.save_to_vti('C:/Users/manzoni/Desktop/NEMAKTIS/POUYA_90twist_dir.vti')
+nfield.save_to_vti('POUYA_90twist_dir.vti')
 
 #create the set up for the liquid cristal 
 mat = nm.LCMaterial(
@@ -67,8 +70,10 @@ sim = nm.LightPropagator(material=mat,
 #print(sim.material)
 #sys.exit()
 
+
 # make the light propagate
-output_fields=sim.propagate_fields(method="bpm") 
+#output_fields=sim.propagate_fields(method="bpm") #bpm often breaks
+output_fields=sim.propagate_fields(method="dtmm") 
 
 #save the results of the simulation
 output_fields.save_to_vti("OUTPUTFIELD_90twist_POUYA")
