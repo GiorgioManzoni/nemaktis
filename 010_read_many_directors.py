@@ -56,6 +56,12 @@ nfield = nm.DirectorField(
     mesh_dimensions=(80,80,10)) # (Nx, Ny, Nz) # fix dimensions 40 40 10 
 
 
+#print(vars(nfield))
+#print(nfield._Nx,nfield._Ny,nfield._Nz)
+#nfield._Nx = 80
+#print(nfield._Nx,nfield._Ny,nfield._Nz)
+#sys.exit()
+
 #path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/result/Director_vectors/'
 path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/director_clean/'
 #name_director = 'QTensor_director_solution-K11_1.01e-11-K22_6.5e-12-K33_1.7e-11-K24_4e-12.mat'
@@ -102,14 +108,41 @@ for root, dirs, files in os.walk(path_directors):
                 v_matlab = data['v_final']
                 w_matlab = data['w_final']
                 
+                print(v_matlab.shape)
+                print(v_matlab.shape[0])  
+                print(v_matlab.shape[1])  
+                print(v_matlab.shape[2])  
                 
-                # Take first row and expand dimensions, then repeat
-                u_new = np.tile(u_matlab[0][np.newaxis, :, :], (80, 1, 1)) #(80,80,10)
-                v_new = np.tile(v_matlab[0][np.newaxis, :, :], (80, 1, 1))
-                w_new = np.tile(w_matlab[0][np.newaxis, :, :], (80, 1, 1))
+                Nx_matlab = v_matlab.shape[0]
+                Ny_matlab = v_matlab.shape[1]
+                Nz_matlab = v_matlab.shape[2]
+                
+                
+                if Nx_matlab == 3:
+                    # it means we simulated only three vectors as it is constant so 
+                    # we take the constant value and duplicate to the dimension of Ny
+                    # Take first row and expand dimensions, then repeat
+                    u_new = np.tile(u_matlab[0][np.newaxis, :, :], (Ny_matlab, 1, 1)) #(3,80,10)-->(80,80,10)
+                    v_new = np.tile(v_matlab[0][np.newaxis, :, :], (Ny_matlab, 1, 1))
+                    w_new = np.tile(w_matlab[0][np.newaxis, :, :], (Ny_matlab, 1, 1))                    
+                    Nx_final = Ny_matlab  
+                else:
+                    u_new = u_matlab
+                    v_new = v_matlab
+                    w_new = w_matlab
+                    Nx_final = Nx_matlab
+
+                Ny_final = Ny_matlab
+                Nz_final = Nz_matlab 
                 
                 print(u_matlab.shape)
                 print(u_new.shape)
+                print(Nx_final,Ny_final,Nz_final)                
+                
+                nfield = nm.DirectorField(mesh_lengths=(100,100,2), # (Lx, Ly, Lz) microns
+                                          mesh_dimensions=(Nx_final,Ny_final,Nz_final))
+                
+            
                 
                 #sys.exit()
                 
@@ -123,6 +156,9 @@ for root, dirs, files in os.walk(path_directors):
                 u_np = np.transpose(u_new, (2, 0, 1))  
                 v_np = np.transpose(v_new, (2, 0, 1))
                 w_np = np.transpose(w_new, (2, 0, 1))
+                
+                
+                
                 
                 
                 # putting the three component of the director in a single variable
@@ -186,4 +222,5 @@ for root, dirs, files in os.walk(path_directors):
                 print('ERROR:')
                 print(i, " ", path_directors+name_director)
                 print('######################################################################')
-                print('######################################################################')                
+                print('######################################################################')       
+                
