@@ -12,6 +12,7 @@ from scipy.io import loadmat
 from PIL import Image
 from pathlib import Path
 import os
+import h5py
 
 def get_img_np(viewer,polariser_angle=0,analyser_angle=90,grayscale=False):
     viewer.analyser_angle = analyser_angle;
@@ -51,9 +52,9 @@ def save_np_img(img,path,img_name):
 #    mesh_lengths=(20,20,5), # (Lx, Ly, Lz)
 #    mesh_dimensions=(100,100,40)) # (Nx, Ny, Nz) # fix dimensions 40 40 10 
 
-nfield = nm.DirectorField(
-    mesh_lengths=(100,100,2), # (Lx, Ly, Lz)
-    mesh_dimensions=(80,80,10)) # (Nx, Ny, Nz) # fix dimensions 40 40 10 
+#nfield = nm.DirectorField(
+#    mesh_lengths=(100,100,2), # (Lx, Ly, Lz)
+#    mesh_dimensions=(80,80,10)) # (Nx, Ny, Nz) # fix dimensions 40 40 10 
 
 
 #print(vars(nfield))
@@ -63,8 +64,15 @@ nfield = nm.DirectorField(
 #sys.exit()
 
 #path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/result/Director_vectors/'
-path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/director_clean/'
+#path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/director_clean/'
+#path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/directors_600/'
 #name_director = 'QTensor_director_solution-K11_1.01e-11-K22_6.5e-12-K33_1.7e-11-K24_4e-12.mat'
+# path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/one_direction/'
+# path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/efficient_dir/'
+
+# path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/PYTHON_DIR/'
+# path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/python_eq/'
+path_directors = 'C:/Users/manzoni/Desktop/SKL/NEMAKTIS/python_vero/'
 
 #print(name_director[:-3]+'png')
 i = 0
@@ -72,7 +80,7 @@ for root, dirs, files in os.walk(path_directors):
     for file_name in files:
         full_path = os.path.join(root, file_name)
         #print(full_path)
-        if ('.mat' in file_name) and ('Sin' not in file_name):            
+        if ('.mat' in file_name)or ('.h5' in file_name): #  and ('Sin' in file_name):            
             try:
                 i = i +1
                 #print("######")
@@ -90,7 +98,7 @@ for root, dirs, files in os.walk(path_directors):
                 # Check if file exists and has content
                 #file_path = path_directors+name_director
                 #print(f"File exists: {os.path.exists(file_path)}")
-                #print(f"File size: {os.path.getsize(file_path)} bytes")
+                #print(f"File size: {os.path.getsize(file_path)}  ytes")
                 
                 #sys.exit()
                 #try:
@@ -100,23 +108,36 @@ for root, dirs, files in os.walk(path_directors):
                 #    continue
                 #    print(name_director)
                 #continue
+                try:
+                    data = loadmat(path_directors+name_director)
+                    
+                except:
+                    data = h5py.File(path_directors+name_director)
+                print('ciao -1')
+              
                 
-                data = loadmat(path_directors+name_director)
-            
+              
                 # (Ny,Nx,Nz) Note! the y axis come first! (although usually Nx=Ny)
                 u_matlab = data['u_final']  # (3,80,10)
                 v_matlab = data['v_final']
                 w_matlab = data['w_final']
+            
+                
+                print(np.shape(v_matlab))
                 
                 print(v_matlab.shape)
                 print(v_matlab.shape[0])  
                 print(v_matlab.shape[1])  
                 print(v_matlab.shape[2])  
                 
+                
+                print('ciao 0')
+                
                 Nx_matlab = v_matlab.shape[0]
                 Ny_matlab = v_matlab.shape[1]
                 Nz_matlab = v_matlab.shape[2]
                 
+                print('ciao 1')
                 
                 if Nx_matlab == 3:
                     # it means we simulated only three vectors as it is constant so 
@@ -135,11 +156,13 @@ for root, dirs, files in os.walk(path_directors):
                 Ny_final = Ny_matlab
                 Nz_final = Nz_matlab 
                 
+                print('ciao 2')
+                
                 print(u_matlab.shape)
                 print(u_new.shape)
                 print(Nx_final,Ny_final,Nz_final)                
                 
-                nfield = nm.DirectorField(mesh_lengths=(100,100,2), # (Lx, Ly, Lz) microns
+                nfield = nm.DirectorField(mesh_lengths=(13,13,3), # (Lx, Ly, Lz) microns
                                           mesh_dimensions=(Nx_final,Ny_final,Nz_final))
                 
             
@@ -158,7 +181,7 @@ for root, dirs, files in os.walk(path_directors):
                 w_np = np.transpose(w_new, (2, 0, 1))
                 
                 
-                
+                print('ciao 3')
                 
                 
                 # putting the three component of the director in a single variable
@@ -184,11 +207,11 @@ for root, dirs, files in os.walk(path_directors):
                 mat.add_isotropic_layer(nlayer=1.51, thickness=1000)
                 
                 
-                
+                print('ciao 4')
                 
                 
                 # create the array of wavelength of the light 
-                wavelengths = np.linspace(0.4,0.6,10)
+                wavelengths = np.linspace(0.4,0.6,10) #10 
                 
                 # create a light propagator object
                 sim = nm.LightPropagator(material=mat, 
@@ -200,27 +223,46 @@ for root, dirs, files in os.walk(path_directors):
                 #print(sim.material)
                 #sys.exit()
                 
+                print('ciao 5')
+                
                 # make the light propagate
-                output_fields=sim.propagate_fields(method="bpm") 
+                output_fields=sim.propagate_fields(method="dtmm") #dtmm bpm
+                
+                
+                print('ciao 6')
+                
                 
                 #save the results of the simulation
                 #output_fields.save_to_vti("PN1output.vti")
                 output_fields.save_to_vti(path_directors+name_director[:-3]+'_out_field.vti')
                 
+                
+                print('ciao 7')
+                
                 # Use Nemaktis viewer to see the output
                 viewer = nm.FieldViewer(output_fields)
+                
+                print('ciao 8')
                 
                 #viewer.plot()
                 img = viewer.get_image()
                 
                 img = get_img_np(viewer,polariser_angle=0,analyser_angle=90,grayscale=False)
                 
-                save_np_img(img,path=path_directors ,img_name=name_director[:-3]+'png')
+                viewer.plot()
+                
+                print('ciao 9')
+                
+                save_np_img(img,path=path_directors ,img_name=name_director[:-2]+'png') #remember to change it based on the length of the extension mat=3, h5=2
+                
+                print('ciao 10')
             except:
                 print('######################################################################')
                 print('######################################################################')
                 print('ERROR:')
                 print(i, " ", path_directors+name_director)
                 print('######################################################################')
-                print('######################################################################')       
+                print('######################################################################')    
+                
+            #viewer.plot()
                 

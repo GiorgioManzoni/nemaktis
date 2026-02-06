@@ -28,7 +28,10 @@ nfield = nm.DirectorField(
 #data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/6_QTensor_director_solution.mat')
 #data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/QTensor_director_solution_K11_0-6.mat')
 #data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/QTensor_director_solution_K11_1-1.mat')
-data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/QTensor_director_solution_K11_1-6.mat')
+#data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/POUYA/QTensor_director_solution_K11_1-6.mat')
+#QTensor_director_solution-Sin_2pi_inXY-K11_1.1e-11-K22_6.5e-12-K33_1.7e-11-K24_4e-12-Lx_1.3e-05-
+data = loadmat('C:/Users/manzoni/Desktop/SKL/NEMAKTIS/p.mat')
+
 
 # (Ny,Nx,Nz) Note! the y axis come first! (although usually Nx=Ny)
 u_matlab = data['u_final']  # (3,80,10)
@@ -72,7 +75,7 @@ nfield.vals = director
 nfield.normalize()
 
 # save the director in vti format (optional)
-nfield.save_to_vti('C:/Users/manzoni/Desktop/NEMAKTIS/PN1dir.vti')
+nfield.save_to_vti('C:/Users/manzoni/Desktop/NEMAKTIS/PN1dir_.vti')
 
 #create the set up for the liquid cristal 
 mat = nm.LCMaterial(
@@ -85,7 +88,7 @@ mat.add_isotropic_layer(nlayer=1.51, thickness=1000)
 
 
 # create the array of wavelength of the light 
-wavelengths = np.linspace(0.4,0.6,10)
+wavelengths = np.linspace(0.4,0.6,10) # 10
 
 # create a light propagator object
 sim = nm.LightPropagator(material=mat, 
@@ -98,10 +101,10 @@ sim = nm.LightPropagator(material=mat,
 #sys.exit()
 
 # make the light propagate
-output_fields=sim.propagate_fields(method="bpm") 
+output_fields=sim.propagate_fields(method="dtmm") #dtmm bpm
 
 #save the results of the simulation
-output_fields.save_to_vti("PN1output.vti")
+output_fields.save_to_vti("PN1output_.vti")
 
 # Use Nemaktis viewer to see the output
 viewer = nm.FieldViewer(output_fields)
