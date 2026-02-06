@@ -1,4 +1,6 @@
 *.vti
+*.vtk
+*.h5
 *.zip
 *.mat
 *.png
